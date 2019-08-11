@@ -89,6 +89,11 @@ func processFile(filename string) error {
 		rowsCount := 0
 		for _, row := range importsArr {
 			if len(strings.TrimSpace(row)) > 0 {
+				// if there is a comment inside imports block - no action
+				if isCommentRow(row) {
+					return nil
+				}
+
 				result += row + "\n"
 				rowsCount++
 			}
@@ -108,4 +113,10 @@ func processFile(filename string) error {
 	}
 
 	return nil
+}
+
+func isCommentRow(row string) bool {
+	row = strings.TrimSpace(row)
+
+	return row[:2] == "//" || row[:2] == "/*"
 }
