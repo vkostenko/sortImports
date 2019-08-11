@@ -12,10 +12,16 @@ import (
 	"syscall"
 )
 
-var exitCode = 0
-
 func main() {
+	var exitCode = 0
+	var err error
 	defer func() {
+		if err != nil {
+			scanner.PrintError(os.Stderr, err)
+			if exitCode == 0 {
+				exitCode = 2
+			}
+		}
 		os.Exit(exitCode)
 	}()
 
@@ -26,17 +32,17 @@ func main() {
 	flag.Parse()
 
 	if !*write {
-		report(errors.New("only write mode is available"))
+		err = errors.New("only write mode is available")
 		return
 	}
 
 	if !isGoFile(*srcdir) {
-		report(fmt.Errorf("srcdir % is not a go file", srcdir))
+		err = fmt.Errorf("srcdir % is not a go file", srcdir)
 		return
 	}
 
-	if err := processFile(*srcdir); err != nil {
-		report(err)
+	err = processFile(*srcdir)
+	if err != nil {
 		return
 	}
 
@@ -44,8 +50,8 @@ func main() {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	if err := cmd.Run(); err != nil {
-		fmt.Println(err.Error())
+	err = cmd.Run()
+	if err != nil {
 		if exiterr, ok := err.(*exec.ExitError); ok {
 			if status, ok := exiterr.Sys().(syscall.WaitStatus); ok {
 				exitCode = status.ExitStatus()
@@ -58,11 +64,6 @@ func main() {
 func isGoFile(name string) bool {
 	fi, err := os.Stat(name)
 	return err == nil && fi.Mode().IsRegular() && !strings.HasPrefix(name, ".") && strings.HasSuffix(name, ".go")
-}
-
-func report(err error) {
-	scanner.PrintError(os.Stderr, err)
-	exitCode = 2
 }
 
 func processFile(filename string) error {
