@@ -12,6 +12,6 @@ Joins imports in file into single group before running goimports command
 
 In Goland: Preferences -> FileWatchers -> Add (+) -> goimports -> Fill:
 * Program: `sortImports`, 
-* Arguments: `-local encoding,fmt -w -srcdir $FilePath$`
+* Arguments: `-local _local,packages_ -w -srcdir $FilePath$`
 
 , other options left as is -> Ok
