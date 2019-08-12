@@ -15,3 +15,7 @@ In Goland: Preferences -> FileWatchers -> Add (+) -> goimports -> Fill:
 * Arguments: `-local somelocal,packages -w -srcdir $FilePath$`
 
 , other options left as is -> Ok
+
+## Fix all files in entire catalog recursively
+
+`find . | grep "\.go" | cut -c 3- | xargs -L1 -t sortImports -local somelocal,packages -w -srcdir`
